@@ -1,30 +1,36 @@
 package classes.generators;
 
-import classes.input_parameters.Product;
+import classes.model.Product;
+import classes.model.Item;
+import classes.model.Range;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Component
 public class ItemsGenerator {
+    private final IntegerGenerator integerGenerator;
 
-    private final IntegerGenerator itemCountGenerator;
-    private final IntegerGenerator itemQuantityGenerator;
-    private final List<Product> products;
-
-    public ItemsGenerator(IntegerGenerator itemCountGenerator, IntegerGenerator itemQuantityGenerator, List<Product> products) {
-        this.itemCountGenerator = itemCountGenerator;
-        this.itemQuantityGenerator = itemQuantityGenerator;
-        this.products = products;
+    @Autowired
+    public ItemsGenerator(IntegerGenerator integerGenerator) {
+        this.integerGenerator = integerGenerator;
     }
 
-    public List<Item> generate() {
-        return IntStream.range(0, itemCountGenerator.generate())
-                .mapToObj(i -> new Item(
-                        products.get(i % products.size()).getName(),
-                        itemQuantityGenerator.generate(),
-                        products.get(i % products.size()).getPrice()
-                )).collect(Collectors.toCollection(ArrayList::new));
+    List<Item> generate(Range<Integer> itemsCount, Range<Integer> itemQuantity, List<Product> products) {
+        return IntStream.range(0, integerGenerator.generate(itemsCount))
+                .mapToObj(i -> getItem(itemQuantity, products, i))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private Item getItem(Range<Integer> itemQuantity, List<Product> products, int i) {
+        return new Item(
+                products.get(i % products.size()).getName(),
+                integerGenerator.generate(itemQuantity),
+                products.get(i % products.size()).getPrice()
+        );
     }
 }

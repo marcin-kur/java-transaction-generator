@@ -1,17 +1,19 @@
 package classes.generators;
 
+import classes.model.Range;
+import org.springframework.stereotype.Component;
+
 import java.util.Random;
 
+@Component
 public class IntegerGenerator {
-    private final IntegerRange integerRange;
     private final Random random;
 
-    public IntegerGenerator(IntegerRange integerRange) {
-        this.integerRange = integerRange;
+    public IntegerGenerator() {
         this.random = new Random();
     }
 
-    public int generate() {
-        return integerRange.getLowerLimit() + random.nextInt(integerRange.getUpperLimit() - integerRange.getLowerLimit());
+    int generate(Range<Integer> integerRange) {
+        return integerRange.getLowerLimit() + random.nextInt(1 + integerRange.getUpperLimit() - integerRange.getLowerLimit());
     }
 }

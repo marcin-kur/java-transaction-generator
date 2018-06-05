@@ -14,6 +14,7 @@ plugins {
     id "maven"
     id "com.github.johnrengelman.shadow" version '2.0.2'
     id 'net.ltgt.apt' version '0.10'
+    id "com.palantir.docker" version "0.19.2"
 }
 
 group 'transaction-generator'
@@ -32,7 +33,8 @@ artifacts {
 dependencies {
     apt "org.projectlombok:lombok:1.16.20"
     compileOnly 'org.projectlombok:lombok:1.16.20'
-    compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
+    compile 'org.springframework:spring-context:5.0.5.RELEASE'
+    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '6.0-alpha-2'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     compile group: 'ch.qos.logback.contrib', name: 'logback-jackson', version: '0.1.5'
     compile group: 'ch.qos.logback.contrib', name: 'logback-json-classic', version: '0.1.5'
@@ -41,8 +43,10 @@ dependencies {
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.9.4'
     compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.9.4'
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.4'
+    compile group: 'org.apache.activemq', name: 'activemq-client', version: '5.9.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.8.9'
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.10.0'
 }
 
 test {
@@ -55,8 +59,8 @@ test {
 jar {
     manifest {
         attributes(
-                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'classes.launcher.Main'
+            'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+            'Main-Class': 'classes.launcher.Main'
         )
     }
 }

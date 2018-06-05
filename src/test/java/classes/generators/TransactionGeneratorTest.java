@@ -1,51 +1,62 @@
 package classes.generators;
 
-import classes.TestUtils;
-import classes.input_parameters.Product;
+import classes.model.Product;
+import classes.model.Range;
+import classes.model.Transaction;
 import org.junit.Test;
+import org.mockito.Mock;
 
-import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TransactionGeneratorTest {
 
-    private final TestUtils testUtils = new TestUtils();
+    @Mock
+    private Range<Integer> customerIds;
+
+    @Mock
+    private Range<ZonedDateTime> dateRange;
+
+    @Mock
+    private Range<Integer> itemsCount;
+
+    @Mock
+    private Range<Integer> itemsQuantity;
+
+    @Mock
+    private int eventsCount;
 
     @Test
     public void shouldReadProductsFromFile() {
         // given
         ArrayList<Product> products = new ArrayList<>(Arrays.asList(
-                new Product("p1", new BigDecimal(1)),
-                new Product("p2", new BigDecimal(2)),
-                new Product("p3", new BigDecimal(3))
+                mock(Product.class),
+                mock(Product.class),
+                mock(Product.class)
         ));
-        IntegerGenerator itemCountGenerator = new IntegerGenerator(new IntegerRange(100, 150));
-        IntegerGenerator itemQuantityGenerator = new IntegerGenerator(new IntegerRange(5, 10));
-        ItemsGenerator itemsGenerator = new ItemsGenerator(itemCountGenerator, itemQuantityGenerator, products);
-        IntegerGenerator customerIdGenerator = new IntegerGenerator(new IntegerRange(50, 100));
-        TimestampGenerator timestampGenerator = new TimestampGenerator(new TimestampRange(testUtils.getBeginOfToday(), testUtils.getEndOfToday()));
 
-        TransactionGenerator transactionGenerator = new TransactionGenerator(customerIdGenerator, timestampGenerator, itemsGenerator);
+        IntegerGenerator integerGenerator = new IntegerGenerator();
+        TimestampGenerator timestampGenerator = new TimestampGenerator();
+        ItemsGenerator itemsGenerator = new ItemsGenerator(integerGenerator);
+        TransactionGenerator transactionGenerator = new TransactionGenerator(integerGenerator, timestampGenerator, itemsGenerator);
 
         //when
-        Stream<Transaction> transactionStream = IntStream.range(1, 100).mapToObj(transactionGenerator::generate);
+        List<Transaction> transactions = transactionGenerator.generateTransactions(customerIds, dateRange, itemsCount, itemsQuantity, products, eventsCount);
 
         //then
-        transactionStream.forEach(
+        assertThat(transactions.size()).isEqualTo(eventsCount);
+        transactions.forEach(
                 transaction -> {
-                    assertTrue("Validate id failed:" + transaction.getId(),
-                            transaction.getId() >= 1 && transaction.getId() <= 100);
-                    assertTrue("Validate customerId failed:" + transaction.getCustomerId(),
-                            transaction.getCustomerId() >= 50 && transaction.getCustomerId() <= 100);
-                    assertTrue("Validate timestamp failed: " + transaction.getTimestamp(), transaction.getTimestamp().isAfter(testUtils.getBeginOfToday()));
-                    assertTrue("Validate timestamp failed: " + transaction.getTimestamp(), transaction.getTimestamp().isBefore(testUtils.getEndOfToday()));
-                    assertTrue("Validate timestamp failed: " + transaction.getTimestamp(), transaction.getTimestamp().isBefore(testUtils.getEndOfToday()));
+                    assertThat(transaction.getCustomerId()).isBetween(customerIds.getLowerLimit(), customerIds.getUpperLimit());
+                    assertThat(transaction.getTimestamp()).isBetween(dateRange.getLowerLimit(), dateRange.getUpperLimit());
+                    assertThat(transaction.getItems().size()).isBetween(itemsCount.getLowerLimit(), itemsCount.getUpperLimit());
                 }
         );
     }
 }
+

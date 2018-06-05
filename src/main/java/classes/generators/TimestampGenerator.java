@@ -1,17 +1,14 @@
 package classes.generators;
 
+import classes.model.Range;
+import org.springframework.stereotype.Component;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+@Component
 public class TimestampGenerator {
-
-    private final TimestampRange timestampRange;
-
-    public TimestampGenerator(TimestampRange timestampRange) {
-        this.timestampRange = timestampRange;
-    }
-
-    public ZonedDateTime generate() {
+    public ZonedDateTime generate(Range<ZonedDateTime> timestampRange) {
         long until = timestampRange.getLowerLimit().until(timestampRange.getUpperLimit(), ChronoUnit.MILLIS);
         long randomLong = (long) (Math.random() * (until));
         return timestampRange.getLowerLimit().plus(randomLong, ChronoUnit.MILLIS);
