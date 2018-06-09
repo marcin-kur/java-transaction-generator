@@ -3,7 +3,6 @@ package classes.output;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +16,7 @@ public class JmsProducers {
     }
 
     public void publish(List<String> transactions, String brokerName) {
-        jmsProducers
-                .orElse(new ArrayList<>())
-                .forEach(jmsProducer -> transactions.forEach(transaction -> jmsProducer.publish(transaction, brokerName)));
+        jmsProducers.ifPresent(jmsProducers -> jmsProducers
+                .forEach(jmsProducer -> transactions.forEach(transaction -> jmsProducer.publish(transaction, brokerName))));
     }
 }

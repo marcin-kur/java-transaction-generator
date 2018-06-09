@@ -1,6 +1,7 @@
 package classes.output;
 
 import classes.input.InputParametersSupplier;
+import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -21,25 +24,26 @@ public class FileWriter {
     private final FileWriterFactory fileWriterFactory;
 
     @Autowired
-    public FileWriter(InputParametersSupplier inputParametersSupplier, FileWriterFactory fileWriterFactory) {
+    public FileWriter(@NotNull InputParametersSupplier inputParametersSupplier, FileWriterFactory fileWriterFactory) {
         this.outDir = inputParametersSupplier.get().getOutDir();
         this.fileWriterFactory = fileWriterFactory;
     }
 
     public void write(List<String> transactions) {
-        IntStream.of(transactions.size()).forEach(index -> {
-            Path transactionPath = getTransactionPath(index);
-            String transaction = transactions.get(index - 1);
-            try (Writer writer = fileWriterFactory.getFileWriter(transactionPath)) {
-                writer.write(transaction);
-            } catch (IOException e) {
-                log.error("Exception thrown during writing transaction to file. ", e);
-                throw new FileWriterException("Exception thrown during writing transaction to file. ", e);
-            }
-        });
+        IntStream.range(1, transactions.size() + 1).forEach(id -> writeTransaction(id, transactions.get(id - 1)));
     }
 
-    private Path getTransactionPath(int index) {
+    void writeTransaction(int id, String transaction) {
+        Path transactionPath = getTransactionPath(id);
+        try (Writer writer = fileWriterFactory.getFileWriter(transactionPath)) {
+            writer.write(transaction);
+        } catch (IOException e) {
+            log.error("Exception thrown during writing transaction to file. ", e);
+            throw new FileWriterException("Exception thrown during writing transaction to file. ", e);
+        }
+    }
+
+    Path getTransactionPath(int index) {
         return outDir.resolve(FILE_PREFIX + index);
     }
 }

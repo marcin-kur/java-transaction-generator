@@ -68,7 +68,7 @@ public class InputParametersSupplier implements Supplier<InputParameters> {
     }
 
     private int getEventsCount() {
-        return integerParser.parse(env.getProperty("eventsCount", "1:20"));
+        return integerParser.parse(env.getProperty("eventsCount", "100"));
     }
 
     private Path getOutDir() {

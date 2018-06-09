@@ -1,6 +1,6 @@
 <h1>Generator transakcji</h1>
 
-Generator "transakcji" - plików JSON, XML lub yaml, generuje transakcje wg wzoru:
+Generator generuje transakcje wg wzoru:
 
 {
   "id": 1,
@@ -21,7 +21,7 @@ Generator "transakcji" - plików JSON, XML lub yaml, generuje transakcje wg wzor
   "sum": 4.5
 }
 
-Każda transakcja jest zapisywana do odzielnego pliku w formacie "transaction_nrTransakcji". 
+Każda transakcja może być zapisywana do odzielnego pliku w formacie "transaction_nrTransakcji" oraz być wysyłana na adres brokera JMS. 
 
 Build projektu(shadow jar build/libs/transaction-generator-all.jar):
 
@@ -33,8 +33,7 @@ Zainstalwanie w lokalnym repozytorium:
 
 Przykładowe wywołanie:
 
-- java -jar transaction-generator-all.jar -customerIds 1:20 -dateRange "2018-03-08T00:00:00.000-0100":"2018-03-08T23:59:59.999-0100" -itemsFile items.csv -itemsCount 5:15 -itemsQuantity 1:30 -eventsCount 1000 -outDir ./output -format=xml
-
+- java -jar -itemsFile ~/items.csv -customerIds 1:1 -dateRange "2018-03-08T00:00:00.000-0100":"2018-03-08T23:59:59.999-0100" -itemsCount 1:2 -itemsQuantity 1:2 -outDir ./output -eventsCount 1 -format xml -broker tcp://localhost:61616 -queue transactions-queue -topic transaction-topics
 Parametry:
 
 - customerIds: zakres, z jakiego będą generowane wartości do pola "customer_id". Domyślny 1:20
@@ -52,6 +51,12 @@ Parametry:
 - outDir: katalog, do którego mają być zapisane pliki. Domyślnie aktualny katalog roboczy.
 
 - format: format serializacji danych: json, xml lub yaml. Domyślnie json
+
+- broker: adres brokera JMS
+
+- queue: nazwa kolejki
+
+- topic: nazwa tematu
 
 W aplikacji istnieje logowanie z wykorzystaniem Logbacka.
 

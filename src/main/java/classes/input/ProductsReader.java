@@ -28,7 +28,9 @@ public class ProductsReader {
         log.info("Product parsing started. Filename: " + itemsFile);
 
         try (Stream<String> lines = fileReader.getFileLines(itemsFile)) {
-            return getProducts(lines);
+            List<Product> products = getProducts(lines);
+            validateProducts(products);
+            return products;
         } catch (IOException | ClassCastException e) {
             log.error("Error during parsing Products. " + e.getMessage());
             throw new ParseException(e.getMessage());
@@ -47,8 +49,15 @@ public class ProductsReader {
             String[] elements = line.split(",", 2);
             return new Product(elements[0], new BigDecimal(elements[1]));
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            log.error("Error during parsing Product: " + line + ". Error: " + e.getMessage());
-            return null;
+            log.error("Error during parsing Product. " + e.getMessage());
+            throw new ParseException("Error during parsing Product");
+        }
+    }
+
+    private void validateProducts(List<Product> products) {
+        if (products.size() < 1) {
+            log.error("Invalid products file. Empty product list.");
+            throw new ParseException("Invalid products file. Empty product list.");
         }
     }
 }

@@ -25,7 +25,7 @@ public class Serializer {
         return transactions.stream().map(transaction -> {
             try {
                 return objectMapper.writeValueAsString(transaction);
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 SerializeException exception = new SerializeException("Error during serializing transaction");
                 log.error(exception.getMessage());
                 throw exception;
